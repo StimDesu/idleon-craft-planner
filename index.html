@@ -28,7 +28,7 @@
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
 [hidden]{display:none!important}
-.wrap{max-width:1280px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+.wrap{max-width:1440px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
 header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
 h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;letter-spacing:.01em;text-wrap:balance}
 h1 small{font-family:var(--body);font-weight:400;font-size:14px;color:var(--muted);margin-left:8px}
@@ -64,10 +64,10 @@ label.chk{font-size:13px;display:inline-flex;gap:6px;align-items:center;cursor:p
 /* item icons from the atlas */
 .ic{--s:36px;display:inline-block;flex:none;width:var(--s);height:var(--s);background-image:url(img/items.png);background-repeat:no-repeat;
   background-size:calc(var(--cols) * var(--s)) auto;background-position:calc(var(--x) * var(--s) * -1) calc(var(--y) * var(--s) * -1);image-rendering:pixelated;vertical-align:middle}
-.ic.s20{--s:20px}.ic.s24{--s:24px}.ic.s28{--s:28px}.ic.s48{--s:48px}
+.ic.s72{--s:72px}
 
 /* layout */
-.main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+.main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
 
 /* anvil */
@@ -77,23 +77,28 @@ label.chk{font-size:13px;display:inline-flex;gap:6px;align-items:center;cursor:p
 .tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tab[aria-selected="true"] small{color:inherit;opacity:.75}
 .tab.locked{opacity:.55}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px;background:var(--slot);border-radius:6px;padding:8px;min-height:120px;align-content:start}
+.tab.shut{border-style:dashed}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:5px;background:var(--slot);border-radius:6px;padding:8px;min-height:120px;align-content:start}
 .cell{position:relative;display:grid;place-items:center;aspect-ratio:1;background:var(--slot2);border:1px solid var(--slot-line);border-radius:5px;padding:0;color:#e6e8f4}
 .cell:hover{border-color:var(--gold)}
-.cell .ic{--s:48px}
+.cell .ic{--s:72px}
+.cell.shut .ic{opacity:.55}
+.cell.shut::after{content:"⛔";position:absolute;top:1px;right:2px;font-size:11px}
+.shutmsg{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;color:#ffcb45;font-size:13px;padding:6px}
+.shutmsg button{padding:4px 10px;background:#ffcb45;color:#1b1f33}
 .cell.locked .ic{opacity:.3;filter:grayscale(.8)}
-.cell.locked::after{content:"🔒";position:absolute;top:1px;right:2px;font-size:10px}
+.cell.locked::after{content:"🔒";position:absolute;top:1px;right:2px;font-size:11px}
 .cell.lowlv .lv{color:#ff8a6b}
 .cell.inplan{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
-.cell .lv{position:absolute;left:3px;top:1px;font:600 9.5px var(--mono);color:#aab2c8}
-.cell .can{position:absolute;right:3px;bottom:1px;font:600 10px var(--mono);color:#7ee0a8;text-shadow:0 1px 0 #000}
-.cell .pq{position:absolute;right:2px;top:1px;font:700 10px var(--mono);background:var(--gold);color:#1b1f33;border-radius:3px;padding:0 3px}
+.cell .lv{position:absolute;left:4px;top:2px;font:600 11px var(--mono);color:#aab2c8}
+.cell .can{position:absolute;right:4px;bottom:2px;font:600 11.5px var(--mono);color:#7ee0a8;text-shadow:0 1px 0 #000}
+.cell .pq{position:absolute;right:3px;top:2px;font:700 11px var(--mono);background:var(--gold);color:#1b1f33;border-radius:3px;padding:0 3px}
 .cell .tn{position:absolute;left:3px;bottom:1px;font:600 9px var(--mono);color:#aab2c8}
 .empty{color:#aab2c8;font-size:13px;grid-column:1/-1;padding:16px;text-align:center}
 
 /* plan */
 .plan{display:grid;gap:5px}
-.pl{display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:4px 8px;align-items:center;padding:4px 6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.pl{display:grid;grid-template-columns:72px minmax(0,1fr) auto auto;gap:4px 8px;align-items:center;padding:4px 6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
 .pl .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pl .nm small{display:block;color:var(--muted);font-size:11.5px}
 .pl .warn{color:var(--bad)}
@@ -123,21 +128,33 @@ tr.grp td{background:var(--panel2);font-family:var(--display);font-weight:700;fo
 /* forge */
 .forge-set{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px}
 .forge-set label{display:inline-flex;gap:6px;align-items:center;max-width:100%;min-width:0;flex-wrap:wrap}
-#fOil{min-width:0;max-width:100%;text-overflow:ellipsis}
-@media (max-width:560px){.forge-set>label:not(.chk){display:flex;width:100%}#fOil{flex:1 1 0;width:100%}}
+.oils{display:flex;flex-wrap:wrap;gap:6px}
+.oil{display:inline-flex;gap:6px;align-items:center;background:var(--panel2);color:var(--ink);border:1px solid var(--line);padding:2px 10px 2px 2px;text-align:left;font-size:13px}
+.oil small{display:block;color:var(--muted);font:500 11px var(--mono)}
+.oil[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);background:var(--gold-bg)}
+.help{font-size:12.5px;color:var(--muted);margin:0;display:grid;gap:4px}
+.help b{color:var(--ink)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:6px}
+.slot{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:3px 8px 3px 4px;background:var(--slot);color:#e6e8f4;border-radius:6px;border:1px solid var(--slot-line);min-width:0}
+.slot.brim{border-color:#ff8a3c;box-shadow:inset 0 0 0 1px #ff8a3c}
+.slot .n{font:600 11px var(--mono);color:#aab2c8;min-width:22px}
+.slot .q{font:600 12px var(--mono);min-width:34px}
+.slot .m{margin-left:auto;font:600 12px var(--mono);color:#ffcb45;white-space:nowrap}
+.slot .e{opacity:.35}
+h3.sub{font-family:var(--display);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:4px 0 0}
 .mult{font-family:var(--display);font-size:20px;font-weight:700}
 .note{font-size:12.5px;color:var(--muted);margin:0}
 
 /* resources */
 .res{display:grid;gap:10px}
 .res h3{font-family:var(--display);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
-.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px}
 .ri{display:flex;align-items:center;gap:6px;padding:2px 6px 2px 2px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;min-width:0}
-.ri .n{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.ri .n{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
 .ri b{font:600 12px var(--mono)}
 .ri.zero{opacity:.45}
 
-#tip{position:fixed;z-index:20;width:300px;max-width:calc(100vw - 16px);background:var(--ink);color:var(--bg);border-radius:6px;padding:8px 10px;font-size:12.5px;line-height:1.4;pointer-events:none;box-shadow:0 6px 20px rgb(0 0 0 / .25)}
+#tip{position:fixed;z-index:20;width:340px;max-width:calc(100vw - 16px);background:var(--ink);color:var(--bg);border-radius:6px;padding:8px 10px;font-size:12.5px;line-height:1.4;pointer-events:none;box-shadow:0 6px 20px rgb(0 0 0 / .25)}
 #tip .hd{display:flex;gap:8px;align-items:center;margin-bottom:4px}
 #tip .hd b{font-family:var(--display);font-size:14px;line-height:1.2}
 #tip .t{opacity:.75;font-size:11.5px}
@@ -150,7 +167,7 @@ tr.grp td{background:var(--panel2);font-family:var(--display);font-weight:700;fo
 #tip .rc em.ok{color:#5fd394}
 #tip .lock{color:#ffcb45;margin-top:4px}
 .foot{font-size:12.5px;color:var(--muted);max-width:90ch;margin:0}
-@media (max-width:560px){.search{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(46px,1fr));padding:6px;gap:4px}.cell .ic{--s:36px}.pl{grid-template-columns:32px minmax(0,1fr) auto}.pl .x{grid-column:3;grid-row:1}.pl .qty{grid-column:2/4}}
+@media (max-width:560px){.search{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));padding:6px;gap:4px}.pl{grid-template-columns:36px minmax(0,1fr) auto}.pl>.ic{--s:36px}.pl{grid-template-columns:32px minmax(0,1fr) auto}.pl .x{grid-column:3;grid-row:1}.pl .qty{grid-column:2/4}}
 </style>
 </head>
 <body>
@@ -219,13 +236,16 @@ tr.grp td{background:var(--panel2);font-family:var(--display);font-weight:700;fo
     <div class="card-head"><h2 id="h-forge" data-i="forge"></h2></div>
     <div class="forge-set">
       <label><span data-i="f_extra"></span><input id="fExtra" class="num" type="number" min="0" step="1" value="0"></label>
-      <label><span data-i="f_oil"></span><select id="fOil"></select></label>
-      <label class="chk"><input type="checkbox" id="fBrim"><span data-i="f_brim"></span></label>
+            <label class="chk"><input type="checkbox" id="fBrim"><span data-i="f_brim"></span></label>
       <label class="chk"><input type="checkbox" id="fBribe"><span data-i="f_bribe"></span></label>
       <span><span data-i="f_mult"></span> <span class="mult" id="fMult"></span></span>
     </div>
+    <div class="row"><span data-i="f_oil"></span><div class="oils" id="fOil" role="group"></div></div>
+    <div class="help" id="forgeHelp"></div>
     <p class="note" id="forgeNote"></p>
     <div class="tablebox"><table id="forgeTbl"></table></div>
+    <h3 class="sub" data-i="f_slots"></h3>
+    <div class="slots" id="slots"></div>
   </section>
 
   <section class="card" aria-labelledby="h-res">
@@ -263,8 +283,14 @@ const T = {
     sum_crafts:"crafts", sum_xp:"Smithing EXP", sum_lv:"highest level needed", sum_ready:"materials ready", sum_missing:"item types missing",
     need:"Materials", only_missing:"Only missing", th_item:"Item", th_need:"Needed", th_have:"Have", th_left:"Left over", th_status:"Status",
     st_ok:"enough", st_miss:n=>`missing ${n}`, st_craft:n=>`craft ${n}`, st_smelt:"smelt below", need_empty:"The plan is empty.",
-    forge:"Forge: ore to smelt", f_extra:"Extra Bars upgrade, %", f_oil:"Oil", f_none:"No oil", f_brim:"Brimstone slot (×1.5)", f_bribe:"Fossil Fuel Legislation bribe",
-    f_mult:"Bars per smelt:", oil_opt:(n,a,u)=>`${n}: +${a}% bars, ${u}% used per smelt`,
+    forge:"Forge: ore to smelt", f_extra:"Extra Bars upgrade, %", f_oil:"Oil", f_none:"No oil", f_brim:"Smelt in a Brimstone slot (×1.5)", f_bribe:"Fossil Fuel Legislation bribe",
+    f_mult:"Bars per smelt:", f_slots:"Your forge right now", slots_empty:"The forge is empty.",
+    slot_t:(n,b)=>`Slot ${n}${b ? ", Brimstone" : ""}: ore, oil → bars; bars per smelt with your Extra Bars level`,
+    oil_burn:u=>`${u}% burns per smelt`,
+    help_brim:n=>`<b>Brimstone slot</b> is a forge slot bought in the gem shop (“Brimstone Forge Slot”). It smelts 50% faster and makes ×1.5 bars. Bought slots are the first ones in the forge${n != null ? ` (you have ${n})` : ""}; tick the box if you smelt in one.`,
+    help_bribe:"<b>Fossil Fuel Legislation</b> is a Smithing bribe (bought from Bandit Bob). Its text says oil burns at 80% of the usual chance, but the game code only lowers the chance by 0.2%, so it barely changes the oil count.",
+    s_tabs:"anvil tabs open", tab_closed:"tab is closed", tab_closed_n:n=>`tab ${n} is closed`,
+    tab_shut_msg:(n,k,nm)=>`Tab ${n} is closed: craft “${nm}” (tab ${k}) and use it. Recipes found here can't be crafted until then.`, add_key:"Add to plan", oil_opt:(n,a,u)=>`${n}: +${a}% bars, ${u}% used per smelt`,
     forge_note:(m)=>`Each smelt eats the ore shown in “per smelt” and makes ×${m} bars: the whole part always, the fractional part as a chance, the same roll the game uses. So the ore is an expected amount; “worst case” assumes every chance roll fails. Oil also burns by chance on every smelt, so its count is an average.`,
     forge_empty:"No missing bars, nothing to smelt.",
     th_bar:"Bar", th_bars:"Bars missing", th_per:"Ore per smelt", th_smelts:"Smelts", th_ore:"Ore needed", th_worst:"Worst case", th_orehave:"Ore you have", th_oremiss:"Ore missing", th_oil:"Oil used",
@@ -294,8 +320,14 @@ const T = {
     sum_crafts:"крафтов", sum_xp:"опыта кузнеца", sum_lv:"макс. нужный уровень", sum_ready:"материалов хватает", sum_missing:"видов предметов не хватает",
     need:"Материалы", only_missing:"Только недостающие", th_item:"Предмет", th_need:"Нужно", th_have:"Есть", th_left:"Останется", th_status:"Статус",
     st_ok:"хватает", st_miss:n=>`не хватает ${n}`, st_craft:n=>`скрафтить ${n}`, st_smelt:"переплавить ниже", need_empty:"План пуст.",
-    forge:"Кузня: сколько руды переплавить", f_extra:"Улучшение Extra Bars, %", f_oil:"Масло", f_none:"Без масла", f_brim:"Слот Brimstone (×1.5)", f_bribe:"Взятка Fossil Fuel Legislation",
-    f_mult:"Слитков за плавку:", oil_opt:(n,a,u)=>`${n}: +${a}% слитков, расход ${u}% за плавку`,
+    forge:"Кузня: сколько руды переплавить", f_extra:"Улучшение Extra Bars, %", f_oil:"Масло", f_none:"Без масла", f_brim:"Плавить в слоте Brimstone (×1.5)", f_bribe:"Взятка Fossil Fuel Legislation",
+    f_mult:"Слитков за плавку:", f_slots:"Кузня сейчас", slots_empty:"Кузня пуста.",
+    slot_t:(n,b)=>`Слот ${n}${b ? ", Brimstone" : ""}: руда, масло → слитки; слитков за плавку с твоим Extra Bars`,
+    oil_burn:u=>`сгорает ${u}% за плавку`,
+    help_brim:n=>`<b>Слот Brimstone</b> — слот кузни, купленный в магазине самоцветов («Brimstone Forge Slot»). Плавит на 50% быстрее и даёт ×1.5 слитков. Купленные слоты — первые слоты кузни${n != null ? ` (у тебя ${n})` : ""}; отметь галочку, если плавишь в таком.`,
+    help_bribe:"<b>Fossil Fuel Legislation</b> — взятка по кузнечному делу (покупается у Bandit Bob). В описании сказано, что масло сгорает с 80% от обычного шанса, но по коду игры шанс снижается всего на 0.2%, так что на расход масла она почти не влияет.",
+    s_tabs:"вкладок наковальни открыто", tab_closed:"вкладка закрыта", tab_closed_n:n=>`вкладка ${n} закрыта`,
+    tab_shut_msg:(n,k,nm)=>`Вкладка ${n} закрыта: скрафти «${nm}» (вкладка ${k}) и используй его. До этого найденные здесь рецепты скрафтить нельзя.`, add_key:"Добавить в план", oil_opt:(n,a,u)=>`${n}: +${a}% слитков, расход ${u}% за плавку`,
     forge_note:(m)=>`Каждая плавка съедает руду из колонки «за плавку» и даёт ×${m} слитка: целую часть всегда, дробную — с шансом, тем же броском, что и в игре. Поэтому руда — ожидаемое количество, а «в худшем случае» — если все шансы не сработают. Масло тоже сгорает с шансом на каждой плавке, его количество — среднее.`,
     forge_empty:"Слитков хватает, переплавлять нечего.",
     th_bar:"Слиток", th_bars:"Не хватает слитков", th_per:"Руды за плавку", th_smelts:"Плавок", th_ore:"Нужно руды", th_worst:"В худшем случае", th_orehave:"Руды есть", th_oremiss:"Руды не хватает", th_oil:"Масла уйдёт",
@@ -340,6 +372,7 @@ let acct = null;                    // parsed save
 let plan = []; try { plan = JSON.parse(store.get("cp-plan") || "[]").filter(p => R[p.id] && p.q > 0); } catch(e){ plan = []; }
 let tabSel = +(store.get("cp-tab") || 0) || 0;
 let lastMsg = null;
+let oilSel = "";
 
 // ---------- save ----------
 function addInv(map, order, qty){
@@ -367,13 +400,22 @@ function parseSave(text){
   let oil = "";                     // the double-bar oil used most in the forge right now
   const oc = {}; for (let s = 1; s < fo.length; s += 3) if (D.oils[fo[s]] && D.oils[fo[s]].eff === "DoubleBarsForge") oc[fo[s]] = (oc[fo[s]] || 0) + 1;
   for (const k in oc) if (!oil || oc[k] > oc[oil]) oil = k;
-  return { chars, stor, inv, forge, anvil, extra: Math.round(Number(flv[4]) || 0), brim: (Number(gem[104]) || 0) > 0, bribe: Number(bribe[9]) === 1, oil };
+  if (!oil) for (const k in D.oils)          // empty forge: the strongest double-bar oil you own
+    if (D.oils[k].eff === "DoubleBarsForge" && (stor[k] || inv[k]) && (!oil || D.oils[k].amt > D.oils[oil].amt)) oil = k;
+  const slots = [];
+  for (let i = 0; i * 3 < fo.length; i++) slots.push({ ore: fo[3*i], oq: +fq[3*i] || 0, oil: fo[3*i+1], lq: +fq[3*i+1] || 0, bar: fo[3*i+2], bq: +fq[3*i+2] || 0 });
+  const tabs = o.CYAnvilTabsOwned == null ? D.tabs.length : Math.max(1, Number(o.CYAnvilTabsOwned) || 1);
+  const brimN = Number(gem[104]) || 0;
+  return { chars, stor, inv, forge, anvil, slots, tabs, brimN, extra: Math.round(Number(flv[4]) || 0), brim: brimN > 0, bribe: Number(bribe[9]) === 1, oil };
 }
 const bestSmith = () => acct && acct.chars.length ? Math.max(...acct.chars.map(c => c.smith)) : null;
-function unlocked(r){
+function known(e){                 // this anvil entry's recipe is found (AnvilCraftStatus >= 0)
   if (!acct) return true;
-  return R[r.id].all.some(e => { const row = acct.anvil[e.t]; return Array.isArray(row) && Number(row[e.k]) >= 0; });
+  const row = acct.anvil[e.t]; return Array.isArray(row) && Number(row[e.k]) >= 0;
 }
+const tabOpen = t => !acct || acct.tabs > t;   // CYAnvilTabsOwned: tabs opened by using "Anvil Tab N" items
+const unlocked = r => R[r.id].all.some(known);
+const usable = r => R[r.id].all.some(e => known(e) && tabOpen(e.t));
 function owned(){
   const o = {};
   if (!acct) return o;
@@ -409,7 +451,7 @@ function compute(){
   return { own, planQ, crafts, rows };
 }
 function forgeMult(){
-  const ex = Math.max(0, Number($("#fExtra").value) || 0), oil = D.oils[$("#fOil").value];
+  const ex = Math.max(0, Number($("#fExtra").value) || 0), oil = D.oils[oilSel];
   return (1 + Math.round(ex) / 100) * (oil ? 1 + oil.amt / 100 : 1) * ($("#fBrim").checked ? 1.5 : 1);
 }
 
@@ -421,10 +463,6 @@ function applyLang(){
   document.querySelectorAll("[data-i]").forEach(el => { const v = L[el.dataset.i]; if (el.dataset.i === "foot" || el.dataset.i === "nick_hint") el.innerHTML = v.replace("__BUILD__", D.build || "?"); else el.textContent = v; });
   $("#save").placeholder = L.placeholder; $("#nick").placeholder = L.nick_ph; $("#q").placeholder = L.search_ph; $("#rq").placeholder = L.res_ph;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
-  const cur = $("#fOil").value;
-  $("#fOil").innerHTML = `<option value="">${L.f_none}</option>` + Object.keys(D.oils).filter(k => D.oils[k].eff === "DoubleBarsForge")
-    .map(k => `<option value="${k}">${esc(L.oil_opt(nm(k), D.oils[k].amt, D.oils[k].use))}</option>`).join("");
-  $("#fOil").value = cur;
   if (lastMsg) showMsg(...lastMsg);
   renderAll();
 }
@@ -434,7 +472,8 @@ function renderStats(){
   $("#stats").innerHTML =
     `<div class="stat"><b>${acct.chars.length}</b><span>${L.s_chars}</span></div>`
   + `<div class="stat"><b>${bestSmith()}</b><span>${L.s_smith}</span></div>`
-  + `<div class="stat"><b>${un}/${Object.keys(R).length}</b><span>${L.s_rec}</span></div>`;
+  + `<div class="stat"><b>${un}/${Object.keys(R).length}</b><span>${L.s_rec}</span></div>`
+  + `<div class="stat"><b>${Math.min(acct.tabs, D.tabs.length)}/${D.tabs.length}</b><span>${L.s_tabs}</span></div>`;
 }
 function canCraft(r, own){
   if (!acct) return 0;
@@ -443,22 +482,27 @@ function canCraft(r, own){
 }
 function renderTabs(){
   $("#tabs").innerHTML = E.map((tab, t) => {
-    const un = acct ? tab.filter(unlocked).length : tab.length;
-    return `<button type="button" role="tab" class="tab${acct && !un ? " locked" : ""}" aria-selected="${t === tabSel}" data-tab="${t}" title="${L.tab} ${t + 1}">`
-      + `${icon("EquipmentSmithingTabs" + (t + 1), "s28")}${t + 1}<small>${acct ? un + "/" : ""}${tab.length}</small></button>`;
+    const un = acct ? tab.filter(known).length : tab.length, open = tabOpen(t);
+    return `<button type="button" role="tab" class="tab${acct && !un ? " locked" : ""}${open ? "" : " shut"}" aria-selected="${t === tabSel}" data-tab="${t}" title="${esc(L.tab + " " + (t + 1) + (open ? "" : " · " + L.tab_closed))}">`
+      + `${icon("EquipmentSmithingTabs" + (t + 1))}${open ? "" : "⛔"}${t + 1}<small>${acct ? un + "/" : ""}${tab.length}</small></button>`;
   }).join("");
 }
 function renderGrid(own, planQ){
   const q = $("#q").value.trim().toLowerCase(), all = !acct || $("#showAll").checked, best = bestSmith();
   let list = q ? Object.values(R).filter(r => nm(r.id).toLowerCase().includes(q) || (D.items[r.id] || {}).en.toLowerCase().includes(q)) : E[tabSel];
-  list = list.filter(r => all || unlocked(r));
-  if (!list.length) { $("#grid").innerHTML = `<div class="empty">${q ? L.nores : L.nounlocked}</div>`; return; }
-  $("#grid").innerHTML = list.map(r => {
-    const lock = !unlocked(r), can = canCraft(r, own), low = best != null && r.lv > best;
-    return `<button type="button" class="cell${lock ? " locked" : ""}${low ? " lowlv" : ""}${planQ[r.id] ? " inplan" : ""}" data-add="${r.id}" data-item="${r.id}" aria-label="${esc(nm(r.id))}">`
+  list = list.filter(r => all || known(r));
+  let head = "";
+  if (!q && !tabOpen(tabSel)) {
+    const key = R["EquipmentSmithingTabs" + (tabSel + 1)];
+    head = `<div class="shutmsg">⛔ ${esc(L.tab_shut_msg(tabSel + 1, key ? key.t + 1 : "?", nm("EquipmentSmithingTabs" + (tabSel + 1))))}${key ? ` <button type="button" data-add="${key.id}" data-item="${key.id}">${L.add_key}</button>` : ""}</div>`;
+  }
+  if (!list.length) { $("#grid").innerHTML = head + `<div class="empty">${q ? L.nores : L.nounlocked}</div>`; return; }
+  $("#grid").innerHTML = head + list.map(r => {
+    const lock = !known(r), shut = !lock && !tabOpen(r.t), can = usable(r) ? canCraft(r, own) : 0, low = best != null && r.lv > best;
+    return `<button type="button" class="cell${lock ? " locked" : ""}${shut ? " shut" : ""}${low ? " lowlv" : ""}${planQ[r.id] ? " inplan" : ""}" data-add="${r.id}" data-item="${r.id}" aria-label="${esc(nm(r.id))}">`
       + icon(r.id) + `<span class="lv">${r.lv}</span>`
       + (planQ[r.id] ? `<span class="pq">${cfmt(planQ[r.id])}</span>` : "")
-      + (q ? `<span class="tn">${r.t + 1}</span>` : can > 0 && !lock ? `<span class="can">${cfmt(can)}</span>` : "")
+      + (q ? `<span class="tn">${r.t + 1}</span>` : can > 0 ? `<span class="can">${cfmt(can)}</span>` : "")
       + `</button>`;
   }).join("");
 }
@@ -469,7 +513,8 @@ function renderPlan(res){
     const r = R[p.id], warn = [];
     if (best != null && r.lv > best) warn.push(L.need_lv({ lv: r.lv, best }));
     if (!unlocked(r)) warn.push(L.locked_r);
-    return `<div class="pl">${icon(p.id)}<div class="nm" data-item="${p.id}">${esc(nm(p.id))}<small>${L.tab} ${r.t + 1} · ${L.lv} ${r.lv}${warn.length ? ` · <span class="warn">${esc(warn.join(", "))}</span>` : ""}</small></div>`
+    else if (!usable(r)) warn.push(L.tab_closed_n(r.t + 1));
+    return `<div class="pl">${icon(p.id, "s72")}<div class="nm" data-item="${p.id}">${esc(nm(p.id))}<small>${L.tab} ${r.t + 1} · ${L.lv} ${r.lv}${warn.length ? ` · <span class="warn">${esc(warn.join(", "))}</span>` : ""}</small></div>`
       + `<span class="qty"><button type="button" data-d="${i}" data-v="-1" aria-label="−1">−</button><input class="num" type="number" min="1" value="${p.q}" data-qi="${i}" aria-label="${esc(nm(p.id))}"><button type="button" data-d="${i}" data-v="1" aria-label="+1">+</button></span>`
       + `<button type="button" class="x" data-rm="${i}" aria-label="×">×</button></div>`;
   }).join("");
@@ -491,14 +536,15 @@ function renderNeeds(res){
       const pct = Math.min(100, (r.have + r.made) / r.need * 100);
       const st = r.miss > 0 ? (g === "bBar" && BAR2ORE[r.id] ? `<span class="chip bad">${L.st_miss(fmt(r.miss))}</span> <span class="note">${L.st_smelt}</span>` : `<span class="chip bad">${L.st_miss(fmt(r.miss))}</span>`)
         : r.made > 0 ? `<span class="chip craft">${L.st_craft(fmt(r.made))}</span>` : `<span class="chip ok">${L.st_ok}</span>`;
-      h += `<tr><td class="l nm" data-item="${r.id}">${icon(r.id, "s28")}${esc(nm(r.id))}</td><td class="num">${fmt(r.need)}</td><td class="num">${fmt(r.have)}</td>`
+      h += `<tr><td class="l nm" data-item="${r.id}">${icon(r.id)}${esc(nm(r.id))}</td><td class="num">${fmt(r.need)}</td><td class="num">${fmt(r.have)}</td>`
         + `<td><div class="bar${pct < 100 ? " part" : ""}"><i style="width:${pct}%"></i></div></td><td class="num">${r.miss > 0 ? "—" : fmt(r.have + r.made - r.need)}</td><td class="l">${st}</td></tr>`;
     }
   }
   $("#needs").innerHTML = h + "</tbody>";
 }
 function renderForge(res){
-  const m = forgeMult(), oil = D.oils[$("#fOil").value], burn = oil ? oil.use / 100 * ($("#fBribe").checked ? 1 - D.oilBribe / 100 : 1) : 0;
+  renderOils(res.own); renderSlots();
+  const m = forgeMult(), oil = D.oils[oilSel], burn = oil ? oil.use / 100 * ($("#fBribe").checked ? 1 - D.oilBribe / 100 : 1) : 0;
   $("#fMult").textContent = "×" + (+m.toFixed(3));
   $("#forgeNote").textContent = L.forge_note(+m.toFixed(3));
   const direct = {}; res.rows.forEach(r => direct[r.id] = r.need);
@@ -511,12 +557,30 @@ function renderForge(res){
     const smelts = Math.ceil(r.miss / m), worst = Math.ceil(r.miss / Math.max(1, Math.floor(m))) * per, need = smelts * per;
     const have = Math.max(0, (res.own[ore] || 0) - (direct[ore] || 0));  // ore the recipes already eat directly is reserved
     const miss = Math.max(0, need - have), oilUse = smelts * burn; oilTot += oilUse;
-    h += `<tr><td class="l nm" data-item="${r.id}">${icon(r.id, "s28")}${esc(nm(r.id))}</td><td class="num">${fmt(r.miss)}</td><td class="num">${fmt(per)}</td><td class="num">${fmt(smelts)}</td>`
-      + `<td class="num" data-item="${ore}"><b>${fmt(need)}</b> ${icon(ore, "s20")}</td><td class="num">${fmt(worst)}</td><td class="num">${fmt(have)}</td>`
+    h += `<tr><td class="l nm" data-item="${r.id}">${icon(r.id)}${esc(nm(r.id))}</td><td class="num">${fmt(r.miss)}</td><td class="num">${fmt(per)}</td><td class="num">${fmt(smelts)}</td>`
+      + `<td class="num" data-item="${ore}"><b>${fmt(need)}</b> ${icon(ore)}</td><td class="num">${fmt(worst)}</td><td class="num">${fmt(have)}</td>`
       + `<td class="l">${miss > 0 ? `<span class="chip bad">${fmt(miss)}</span>` : `<span class="chip ok">${L.st_ok}</span>`}</td>${oil ? `<td class="num">≈ ${fmt(Math.ceil(oilUse))}</td>` : ""}</tr>`;
   }
-  if (oil) h += `<tr><td class="l" colspan="8"></td><td class="num" data-item="${$("#fOil").value}">≈ <b>${fmt(Math.ceil(oilTot))}</b> ${icon($("#fOil").value, "s20")}</td></tr>`;
+  if (oil) h += `<tr><td class="l" colspan="8"></td><td class="num" data-item="${oilSel}">≈ <b>${fmt(Math.ceil(oilTot))}</b> ${icon(oilSel)}</td></tr>`;
   $("#forgeTbl").innerHTML = h + "</tbody>";
+}
+function renderOils(own){
+  const list = [""].concat(Object.keys(D.oils).filter(k => D.oils[k].eff === "DoubleBarsForge"));
+  $("#fOil").innerHTML = list.map(k => k
+    ? `<button type="button" class="oil" data-oil="${k}" data-item="${k}" aria-pressed="${oilSel === k}">${icon(k)}<span>${esc(nm(k))}<small>+${D.oils[k].amt}% · ${L.oil_burn(D.oils[k].use)}${acct ? " · " + L.tip_have.toLowerCase() + " " + cfmt(own[k] || 0) : ""}</small></span></button>`
+    : `<button type="button" class="oil" data-oil="" aria-pressed="${oilSel === ""}"><span style="padding:8px 4px 8px 8px">${L.f_none}</span></button>`).join("");
+  $("#forgeHelp").innerHTML = `<span>${L.help_brim(acct ? acct.brimN : null)}</span><span>${L.help_bribe}</span>`;
+}
+function renderSlots(){
+  if (!acct) { $("#slots").innerHTML = `<p class="note">${L.res_empty}</p>`; return; }
+  const ex = Math.max(0, Number($("#fExtra").value) || 0);
+  const used = acct.slots.map((s, i) => Object.assign({ i }, s)).filter(s => s.ore !== "Blank" || s.oil !== "Blank" || s.bar !== "Blank" || s.i < acct.brimN);
+  if (!used.length) { $("#slots").innerHTML = `<p class="note">${L.slots_empty}</p>`; return; }
+  const part = (id, q) => id && id !== "Blank" ? `<span data-item="${id}" style="display:inline-flex;align-items:center">${icon(id)}<span class="q">${cfmt(q)}</span></span>` : `<span class="ic e"></span><span class="q"></span>`;
+  $("#slots").innerHTML = used.map(s => {
+    const oil = D.oils[s.oil], b = s.i < acct.brimN, m = (1 + Math.round(ex) / 100) * (oil && oil.eff === "DoubleBarsForge" ? 1 + oil.amt / 100 : 1) * (b ? 1.5 : 1);
+    return `<div class="slot${b ? " brim" : ""}" title="${esc(L.slot_t(s.i + 1, b))}"><span class="n">${s.i + 1}</span>${part(s.ore, s.oq)}${part(s.oil, s.lq)}→${part(s.bar, s.bq)}<span class="m">×${+m.toFixed(2)}</span></div>`;
+  }).join("");
 }
 function renderRes(own){
   if (!acct) { $("#res").innerHTML = `<p class="note">${L.res_empty}</p>`; return; }
@@ -526,7 +590,7 @@ function renderRes(own){
   for (const g of GROUPS.slice(1)) {
     const list = ids.filter(id => group(id) === g && (!q || nm(id).toLowerCase().includes(q))).sort((a, b) => (own[b] || 0) - (own[a] || 0) || nm(a).localeCompare(nm(b)));
     if (!list.length) continue;
-    h += `<div><h3>${L["g_" + g]}</h3><div class="chips">` + list.map(id => `<div class="ri${own[id] ? "" : " zero"}" data-item="${id}">${icon(id, "s28")}<span class="n">${esc(nm(id))}</span><b>${cfmt(own[id] || 0)}</b></div>`).join("") + `</div></div>`;
+    h += `<div><h3>${L["g_" + g]}</h3><div class="chips">` + list.map(id => `<div class="ri${own[id] ? "" : " zero"}" data-item="${id}">${icon(id)}<span class="n">${esc(nm(id))}</span><b>${cfmt(own[id] || 0)}</b></div>`).join("") + `</div></div>`;
   }
   $("#res").innerHTML = h || `<p class="note">${L.nores}</p>`;
 }
@@ -539,7 +603,7 @@ function renderAll(){
 const tip = $("#tip");
 function tipHTML(id){
   const own = owned(), it = D.items[id] || {}, r = R[id];
-  let h = `<div class="hd">${icon(id, "s48")}<div><b>${esc(nm(id))}</b>`;
+  let h = `<div class="hd">${icon(id, "s72")}<div><b>${esc(nm(id))}</b>`;
   if (lang === "ru" && it.ru && it.en !== it.ru) h += `<div class="t">${esc(it.en)}</div>`;
   h += `</div></div>`;
   if (acct) {
@@ -549,7 +613,8 @@ function tipHTML(id){
   if (r) {
     const best = bestSmith();
     h += `<div class="t">${L.tip_tab} ${r.t + 1} · ${L.lv} ${r.lv}${best != null ? ` (${best})` : ""} · ${L.tip_xp} ${fmt(r.xp)}</div><div class="t">${L.tip_recipe}</div><div class="rc">`
-      + r.cost.map(([m, q]) => { const o = own[m] || 0; return `<div>${icon(m, "s20")}<span>${esc(nm(m))}</span><em class="${acct ? (o >= q ? "ok" : "bad") : ""}">${acct ? cfmt(o) + " / " : ""}${cfmt(q)}</em></div>`; }).join("") + `</div>`;
+      + r.cost.map(([m, q]) => { const o = own[m] || 0; return `<div>${icon(m)}<span>${esc(nm(m))}</span><em class="${acct ? (o >= q ? "ok" : "bad") : ""}">${acct ? cfmt(o) + " / " : ""}${cfmt(q)}</em></div>`; }).join("") + `</div>`;
+    if (unlocked(r) && !usable(r)) h += `<div class="lock">⛔ ${esc(L.tab_closed_n(r.t + 1))}</div>`;
     if (!unlocked(r)) h += `<div class="lock">🔒 ${L.locked_r}${r.hint ? ": " + esc(lang === "ru" && D.hintRu[r.hint] ? D.hintRu[r.hint] : r.hint.replace(/_/g, " ")) : ""}</div>`;
   }
   return h;
@@ -595,7 +660,7 @@ for (const id of ["showAll","expand","useInv","useForge","onlyMissing","resZero"
   el.addEventListener("change", () => { if (!/^f/.test(id)) store.set("cp-" + id, el.checked ? "1" : "0"); renderAll(); });
 }
 $("#fExtra").addEventListener("input", renderAll);
-$("#fOil").addEventListener("change", renderAll);
+$("#fOil").addEventListener("click", e => { const b = e.target.closest("[data-oil]"); if (b) { oilSel = b.dataset.oil; renderAll(); } });
 document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { lang = b.dataset.lang; store.set("cp-lang", lang); applyLang(); }));
 
 function showMsg(kind, key, arg){
@@ -606,7 +671,7 @@ function showMsg(kind, key, arg){
 }
 function setAccount(a){
   acct = a;
-  if (a) { $("#fExtra").value = a.extra; $("#fOil").value = a.oil; $("#fBrim").checked = a.brim; $("#fBribe").checked = a.bribe; }
+  if (a) { $("#fExtra").value = a.extra; oilSel = a.oil; $("#fBrim").checked = a.brim; $("#fBribe").checked = a.bribe; }
   renderAll();
 }
 function load(text, key, arg){

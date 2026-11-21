@@ -8,10 +8,10 @@ The page picks English or Russian from your browser language; the EN/RU switch i
 
 ## What it does
 
-- **Anvil.** All 7 anvil tabs with the game's icons, in the game's order. Each item shows its Smithing level and how many you can craft right now. Without a save every recipe is shown. With a save only unlocked recipes are shown; tick “Show locked recipes” to see them all, dimmed, with the game's own unlock hint in the tooltip. The search box looks through every tab.
+- **Anvil.** All 7 anvil tabs (72px game icons) with the game's icons, in the game's order. Each item shows its Smithing level and how many you can craft right now. Without a save every recipe is shown. With a save only unlocked recipes are shown; tick “Show locked recipes” to see them all, dimmed, with the game's own unlock hint in the tooltip. The search box looks through every tab. Tabs not opened yet with an “Anvil Tab N” item (`CYAnvilTabsOwned` in the save) are marked ⛔: recipes found there don't count as craftable, and the page offers to plan the Anvil Tab item.
 - **Plan.** Click an item to add 1 (Shift+click adds 10) and edit the amounts. The plan warns when a recipe is still locked or needs a higher Smithing level than your best character, and totals the crafts and Smithing EXP.
 - **Materials.** Needed, owned and missing for every material, grouped like in the game. With “Craft missing anvil parts too” on, ingredients that are anvil items themselves (helmets, pouches, Log Fries…) are crafted from their own recipes when you don't have enough, and their materials are added.
-- **Forge.** For every missing bar: how many smelts, how much ore (expected and worst case), the ore you have and still miss, and how much oil burns on average.
+- **Forge.** Oil picker with icons and your stock, what each forge slot holds right now (ore, oil, bars, Brimstone slots outlined, bars per smelt), and for every missing bar: how many smelts, how much ore (expected and worst case), the ore you have and still miss, and how much oil burns on average.
 - **My resources.** Bars, ores, logs, monster drops, materials, fish, bugs, critters, souls and oils you own, counted over storage, character inventories and the forge (both last two can be switched off).
 
 ## Smelting
@@ -20,7 +20,7 @@ Taken from the game code (`ForgeEtcDetails("BarsMade")` and the forge tick):
 
 - Each smelt eats the ore's fixed amount (2 Copper, 4 Iron, 7 Gold, 16 Platinum, … 20000 Prehistrium) and makes `(1 + Extra Bars%/100) × (1 + oil%/100) × 1.5 if Brimstone slot` bars. The whole part always drops, the fractional part is a chance roll. The planner uses the expected value and also shows the worst case, where every roll fails.
 - Double-bar oils: Toxic Sludge +20% (60% chance to burn per smelt), Magma Barrel +40% (50%), Plasma Barrel +60% (30%). The Fossil Fuel Legislation bribe says it cuts that chance to 80%, but the code multiplies it by `1 − 0.2/100`, so it barely changes anything; the planner follows the code.
-- Extra Bars level, Brimstone slots and the bribe are read from the save (`ForgeLV[4]`, `GemItemsPurchased[104]`, `BribeStatus[9]`); the oil defaults to the double-bar oil in your forge. All of them can be changed by hand.
+- Extra Bars level, Brimstone slots and the bribe are read from the save (`ForgeLV[4]`, `GemItemsPurchased[104]`, `BribeStatus[9]`); the oil defaults to the double-bar oil in your forge, or the strongest one you own. A Brimstone slot is a forge slot bought in the gem shop (“Brimstone Forge Slot”): bought slots are the first ones in the forge. All of them can be changed by hand.
 
 ## How to get your save
 

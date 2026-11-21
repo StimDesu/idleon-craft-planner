@@ -269,7 +269,7 @@ const T = {
     nick_hint:'Uses the profile you published on <a href="https://www.idleonefficiency.com" target="_blank" rel="noopener">idleonefficiency.com</a>; publish it again there to refresh the data.',
     or:"or paste raw save JSON", placeholder:"Raw game JSON (IdleOn Efficiency → Raw data, or IdleOn Toolbox raw JSON)",
     parse:"Load save", open:"Open file…", forget:"Forget save",
-    nick_loading:a=>`Loading ${a}…`, ok_nick:a=>`Loaded ${a.name}: ${a.n} characters.`, ok_n:n=>`Save loaded: ${n} characters.`, ok_saved:n=>`Last save restored: ${n} characters.`,
+    nick_loading:a=>`Loading ${a}…`, ok_nick:a=>`Loaded ${a.name}: ${a.n} characters${a.when ? `, profile published ${a.when}` : ""}. Newer progress needs a new publish on IdleOn Efficiency, or paste raw JSON.`, ok_n:n=>`Save loaded: ${n} characters.`, ok_saved:n=>`Last save restored: ${n} characters.`,
     e_nick:a=>`No published profile "${a.name}" (HTTP ${a.status}).`, e_nickfail:a=>`Could not load "${a.name}": ${a.err}`,
     e_fail:"Could not read the save: ", e_nokey:"no ChestOrder / AnvilCraftStatus keys, is this a raw game save?",
     forgot:"Save removed. Planning without account data.", nosave:"No save loaded: all recipes are shown and nothing counts as owned.",
@@ -306,7 +306,7 @@ const T = {
     nick_hint:'Берётся профиль, опубликованный на <a href="https://www.idleonefficiency.com" target="_blank" rel="noopener">idleonefficiency.com</a>. Чтобы обновить данные, опубликуйте профиль там заново.',
     or:"или вставьте raw JSON сохранения", placeholder:"Raw JSON игры (IdleOn Efficiency → Raw data или raw JSON из IdleOn Toolbox)",
     parse:"Загрузить", open:"Открыть файл…", forget:"Забыть сохранение",
-    nick_loading:a=>`Загружаю ${a}…`, ok_nick:a=>`Загружен ${a.name}: персонажей ${a.n}.`, ok_n:n=>`Сохранение загружено: персонажей ${n}.`, ok_saved:n=>`Восстановлено прошлое сохранение: персонажей ${n}.`,
+    nick_loading:a=>`Загружаю ${a}…`, ok_nick:a=>`Загружен ${a.name}: персонажей ${a.n}${a.when ? `, профиль опубликован ${a.when}` : ""}. Более свежий прогресс — только после новой публикации на IdleOn Efficiency или через raw JSON.`, ok_n:n=>`Сохранение загружено: персонажей ${n}.`, ok_saved:n=>`Восстановлено прошлое сохранение: персонажей ${n}.`,
     e_nick:a=>`Опубликованный профиль «${a.name}» не найден (HTTP ${a.status}).`, e_nickfail:a=>`Не удалось загрузить «${a.name}»: ${a.err}`,
     e_fail:"Не получилось прочитать сохранение: ", e_nokey:"нет ключей ChestOrder / AnvilCraftStatus. Это точно raw-сохранение игры?",
     forgot:"Сохранение удалено. Планирование без данных аккаунта.", nosave:"Сохранение не загружено: показаны все рецепты, в наличии ничего нет.",
@@ -686,9 +686,10 @@ async function loadNick(name){
   const btn = $("#nickBtn"); btn.disabled = true;
   showMsg("ok", "nick_loading", name);
   try {
-    const r = await fetch(`https://cdn.idleonefficiency.com/profiles/${encodeURIComponent(name.toLowerCase())}.json`, { cache: "no-cache" });
+    const r = await fetch(`https://cdn.idleonefficiency.com/profiles/${encodeURIComponent(name.toLowerCase())}.json?t=${Date.now()}`, { cache: "no-store" });  // the CDN keeps profiles up to 30 min; the query skips stale copies
     if (!r.ok) { showMsg("errf", "e_nick", { name, status: r.status }); return; }
-    if (load(await r.text(), "ok_nick", { name })) {
+    const lm = Date.parse(r.headers.get("last-modified") || ""), when = isNaN(lm) ? "" : new Date(lm).toLocaleString(lang === "ru" ? "ru-RU" : "en-US", { dateStyle: "short", timeStyle: "short" });
+    if (load(await r.text(), "ok_nick", { name, when })) {
       store.set("cp-nick", name); store.set("cp-src", "nick"); store.del("cp-save");
       try { history.replaceState(null, "", "#" + encodeURIComponent(name)); } catch(e){}
     }

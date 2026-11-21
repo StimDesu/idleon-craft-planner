@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IdleOn Craft Planner</title>
+<meta name="description" content="Plan Legends of Idleon anvil crafts: pick items from the anvil tabs, see the materials you have and miss, and how much ore to smelt.">
+<link rel="icon" href="img/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f3f4f8; --panel:#ffffff; --panel2:#f7f8fb; --ink:#1b1f33; --muted:#666c86; --line:#dcdfea;
+  --gold:#b98200; --gold-bg:#fff1c7; --ok:#1f8a55; --ok-bg:#d9f2e4; --bad:#c4391a; --bad-bg:#fde0d6;
+  --blue:#2f63c8; --blue-bg:#dfe8fb; --slot:#2b3140; --slot2:#363d4f; --slot-line:#4a5266;
+  --display:"Chakra Petch",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --cols:__COLS__;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1020; --panel:#151a30; --panel2:#11162a; --ink:#e6e8f4; --muted:#9097b3; --line:#262c48;
+  --gold:#ffcb45; --gold-bg:#3b3112; --ok:#5fd394; --ok-bg:#143326; --bad:#ff8a6b; --bad-bg:#3d1c14;
+  --blue:#8fb2ff; --blue-bg:#1b2648; --slot:#1d2233; --slot2:#262c40; --slot-line:#353d58; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1020; --panel:#151a30; --panel2:#11162a; --ink:#e6e8f4; --muted:#9097b3; --line:#262c48;
+  --gold:#ffcb45; --gold-bg:#3b3112; --ok:#5fd394; --ok-bg:#143326; --bad:#ff8a6b; --bad-bg:#3d1c14;
+  --blue:#8fb2ff; --blue-bg:#1b2648; --slot:#1d2233; --slot2:#262c40; --slot-line:#353d58; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;letter-spacing:.01em;text-wrap:balance}
+h1 small{font-family:var(--body);font-weight:400;font-size:14px;color:var(--muted);margin-left:8px}
+h2{font-family:var(--display);font-weight:700;font-size:18px;margin:0;letter-spacing:.02em}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.lang button{background:transparent;color:var(--muted);border-radius:0;padding:4px 10px;font:600 12px var(--mono)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:10px;min-width:0;align-content:start}
+.card-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.card-head h2{margin-right:auto}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#nick,.search,input.num,select{font:500 14px var(--mono);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 10px;max-width:100%}
+#nick{width:220px}
+.search{width:200px;font-family:var(--body)}
+input.num{width:90px;padding:4px 6px;text-align:right}
+select{font-family:var(--body);padding:5px 8px}
+.hint{font-size:12.5px;color:var(--muted);flex:1 1 260px;min-width:0;margin:0}
+.hint a,.foot a{color:inherit}
+.or{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+textarea{width:100%;height:56px;resize:vertical;font-family:var(--mono);font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
+button,.file{font:500 13px var(--body);background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:7px 12px;cursor:pointer}
+button:disabled{opacity:.6;cursor:progress}
+.ghost,.file{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.file{position:relative}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+button:focus-visible,.file:focus-within,textarea:focus-visible,input:focus-visible,select:focus-visible,label.chk:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+.msg{font-size:13px;color:var(--muted)} .msg.err{color:var(--bad)}
+label.chk{font-size:13px;display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:baseline}
+.stat b{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12.5px;margin-left:4px}
+
+/* item icons from the atlas */
+.ic{--s:36px;display:inline-block;flex:none;width:var(--s);height:var(--s);background-image:url(img/items.png);background-repeat:no-repeat;
+  background-size:calc(var(--cols) * var(--s)) auto;background-position:calc(var(--x) * var(--s) * -1) calc(var(--y) * var(--s) * -1);image-rendering:pixelated;vertical-align:middle}
+.ic.s20{--s:20px}.ic.s24{--s:24px}.ic.s28{--s:28px}.ic.s48{--s:48px}
+
+/* layout */
+.main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+
+/* anvil */
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{display:inline-flex;align-items:center;gap:4px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);padding:3px 9px 3px 4px;font:600 13px var(--mono)}
+.tab small{font:400 11px var(--mono);color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:inherit;opacity:.75}
+.tab.locked{opacity:.55}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px;background:var(--slot);border-radius:6px;padding:8px;min-height:120px;align-content:start}
+.cell{position:relative;display:grid;place-items:center;aspect-ratio:1;background:var(--slot2);border:1px solid var(--slot-line);border-radius:5px;padding:0;color:#e6e8f4}
+.cell:hover{border-color:var(--gold)}
+.cell .ic{--s:48px}
+.cell.locked .ic{opacity:.3;filter:grayscale(.8)}
+.cell.locked::after{content:"🔒";position:absolute;top:1px;right:2px;font-size:10px}
+.cell.lowlv .lv{color:#ff8a6b}
+.cell.inplan{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.cell .lv{position:absolute;left:3px;top:1px;font:600 9.5px var(--mono);color:#aab2c8}
+.cell .can{position:absolute;right:3px;bottom:1px;font:600 10px var(--mono);color:#7ee0a8;text-shadow:0 1px 0 #000}
+.cell .pq{position:absolute;right:2px;top:1px;font:700 10px var(--mono);background:var(--gold);color:#1b1f33;border-radius:3px;padding:0 3px}
+.cell .tn{position:absolute;left:3px;bottom:1px;font:600 9px var(--mono);color:#aab2c8}
+.empty{color:#aab2c8;font-size:13px;grid-column:1/-1;padding:16px;text-align:center}
+
+/* plan */
+.plan{display:grid;gap:5px}
+.pl{display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:4px 8px;align-items:center;padding:4px 6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.pl .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .nm small{display:block;color:var(--muted);font-size:11.5px}
+.pl .warn{color:var(--bad)}
+.qty{display:inline-flex;align-items:center;gap:2px}
+.qty button{padding:3px 8px;background:transparent;color:var(--ink);border:1px solid var(--line);font-family:var(--mono)}
+.x{background:transparent;color:var(--muted);padding:2px 8px;font-size:18px;line-height:1}
+.x:hover{color:var(--bad)}
+.opts{display:flex;flex-wrap:wrap;gap:6px 16px}
+.summary{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--muted)}
+.summary b{color:var(--ink);font-family:var(--mono);font-weight:600}
+
+/* tables */
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:4px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-weight:500;font-size:12px;color:var(--muted);position:sticky;top:0;background:var(--panel)}
+th.l,td.l{text-align:left}
+td.nm{display:flex;gap:8px;align-items:center;white-space:normal;min-width:180px}
+td.num{font-family:var(--mono);font-size:13px}
+tr.grp td{background:var(--panel2);font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.04em;text-align:left;padding:4px 8px}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 7px;border-radius:999px;font-family:var(--mono)}
+.chip.ok{background:var(--ok-bg);color:var(--ok)} .chip.bad{background:var(--bad-bg);color:var(--bad)} .chip.craft{background:var(--blue-bg);color:var(--blue)}
+.bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.bar.part i{background:var(--gold)}
+
+/* forge */
+.forge-set{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px}
+.forge-set label{display:inline-flex;gap:6px;align-items:center;max-width:100%;min-width:0;flex-wrap:wrap}
+#fOil{min-width:0;max-width:100%;text-overflow:ellipsis}
+@media (max-width:560px){.forge-set>label:not(.chk){display:flex;width:100%}#fOil{flex:1 1 0;width:100%}}
+.mult{font-family:var(--display);font-size:20px;font-weight:700}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+
+/* resources */
+.res{display:grid;gap:10px}
+.res h3{font-family:var(--display);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px}
+.ri{display:flex;align-items:center;gap:6px;padding:2px 6px 2px 2px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;min-width:0}
+.ri .n{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.ri b{font:600 12px var(--mono)}
+.ri.zero{opacity:.45}
+
+#tip{position:fixed;z-index:20;width:300px;max-width:calc(100vw - 16px);background:var(--ink);color:var(--bg);border-radius:6px;padding:8px 10px;font-size:12.5px;line-height:1.4;pointer-events:none;box-shadow:0 6px 20px rgb(0 0 0 / .25)}
+#tip .hd{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+#tip .hd b{font-family:var(--display);font-size:14px;line-height:1.2}
+#tip .t{opacity:.75;font-size:11.5px}
+#tip .rc{display:grid;gap:2px;margin:4px 0}
+#tip .rc div{display:flex;gap:6px;align-items:center}
+#tip .rc span:not(.ic){flex:1}
+#tip .rc em{font-style:normal;font-family:var(--mono);font-size:11.5px}
+#tip .rc em.bad{color:#ff8a6b}
+:root:not([data-theme="light"]) #tip .rc em.bad{color:var(--bad)}
+#tip .rc em.ok{color:#5fd394}
+#tip .lock{color:#ffcb45;margin-top:4px}
+.foot{font-size:12.5px;color:var(--muted);max-width:90ch;margin:0}
+@media (max-width:560px){.search{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(46px,1fr));padding:6px;gap:4px}.cell .ic{--s:36px}.pl{grid-template-columns:32px minmax(0,1fr) auto}.pl .x{grid-column:3;grid-row:1}.pl .qty{grid-column:2/4}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span data-i="title"></span> <small data-i="subtitle"></small></h1>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <form class="row" id="nickForm">
+      <input id="nick" type="text" autocomplete="username" spellcheck="false" aria-labelledby="nickBtn">
+      <button id="nickBtn" type="submit" data-i="nick_btn"></button>
+      <span class="hint" data-i="nick_hint"></span>
+    </form>
+    <div class="or" data-i="or"></div>
+    <textarea id="save" spellcheck="false" aria-label="Save JSON"></textarea>
+    <div class="row">
+      <button id="go" type="button" data-i="parse"></button>
+      <label class="file"><span data-i="open"></span><input id="file" type="file" accept=".json,.txt,application/json,text/plain"></label>
+      <button id="forget" type="button" class="ghost" data-i="forget"></button>
+      <span id="msg" class="msg" role="status"></span>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="main">
+    <section class="card" aria-labelledby="h-anvil">
+      <div class="card-head">
+        <h2 id="h-anvil" data-i="anvil"></h2>
+        <input id="q" class="search" type="search" autocomplete="off">
+        <label class="chk"><input type="checkbox" id="showAll"><span data-i="show_all"></span></label>
+      </div>
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="grid" id="grid"></div>
+      <p class="note" data-i="grid_hint"></p>
+    </section>
+
+    <section class="card" aria-labelledby="h-plan">
+      <div class="card-head">
+        <h2 id="h-plan" data-i="plan"></h2>
+        <button id="clear" type="button" class="ghost" data-i="clear"></button>
+      </div>
+      <div class="plan" id="plan"></div>
+      <div class="opts">
+        <label class="chk"><input type="checkbox" id="expand" checked><span data-i="opt_expand"></span></label>
+        <label class="chk"><input type="checkbox" id="useInv" checked><span data-i="opt_inv"></span></label>
+        <label class="chk"><input type="checkbox" id="useForge" checked><span data-i="opt_forge"></span></label>
+      </div>
+      <div class="summary" id="summary"></div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-need">
+    <div class="card-head">
+      <h2 id="h-need" data-i="need"></h2>
+      <label class="chk"><input type="checkbox" id="onlyMissing"><span data-i="only_missing"></span></label>
+    </div>
+    <div class="tablebox"><table id="needs"></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-forge">
+    <div class="card-head"><h2 id="h-forge" data-i="forge"></h2></div>
+    <div class="forge-set">
+      <label><span data-i="f_extra"></span><input id="fExtra" class="num" type="number" min="0" step="1" value="0"></label>
+      <label><span data-i="f_oil"></span><select id="fOil"></select></label>
+      <label class="chk"><input type="checkbox" id="fBrim"><span data-i="f_brim"></span></label>
+      <label class="chk"><input type="checkbox" id="fBribe"><span data-i="f_bribe"></span></label>
+      <span><span data-i="f_mult"></span> <span class="mult" id="fMult"></span></span>
+    </div>
+    <p class="note" id="forgeNote"></p>
+    <div class="tablebox"><table id="forgeTbl"></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-res">
+    <div class="card-head">
+      <h2 id="h-res" data-i="res"></h2>
+      <input id="rq" class="search" type="search" autocomplete="off">
+      <label class="chk"><input type="checkbox" id="resZero"><span data-i="res_zero"></span></label>
+    </div>
+    <div class="res" id="res"></div>
+  </section>
+
+  <p class="foot" data-i="foot"></p>
+</div>
+<div id="tip" hidden></div>
+<script>
+const D = __DATA__;
+const T = {
+  en: {
+    title:"IdleOn Craft Planner", subtitle:"anvil crafts, materials and smelting",
+    nick_btn:"Load by username", nick_ph:"IdleOn username",
+    nick_hint:'Uses the profile you published on <a href="https://www.idleonefficiency.com" target="_blank" rel="noopener">idleonefficiency.com</a>; publish it again there to refresh the data.',
+    or:"or paste raw save JSON", placeholder:"Raw game JSON (IdleOn Efficiency → Raw data, or IdleOn Toolbox raw JSON)",
+    parse:"Load save", open:"Open file…", forget:"Forget save",
+    nick_loading:a=>`Loading ${a}…`, ok_nick:a=>`Loaded ${a.name}: ${a.n} characters.`, ok_n:n=>`Save loaded: ${n} characters.`, ok_saved:n=>`Last save restored: ${n} characters.`,
+    e_nick:a=>`No published profile "${a.name}" (HTTP ${a.status}).`, e_nickfail:a=>`Could not load "${a.name}": ${a.err}`,
+    e_fail:"Could not read the save: ", e_nokey:"no ChestOrder / AnvilCraftStatus keys, is this a raw game save?",
+    forgot:"Save removed. Planning without account data.", nosave:"No save loaded: all recipes are shown and nothing counts as owned.",
+    s_chars:"characters", s_smith:"best Smithing level", s_rec:"recipes unlocked", s_items:"item stacks counted",
+    anvil:"Anvil", search_ph:"Search all tabs", show_all:"Show locked recipes", tab:"Tab",
+    grid_hint:"Click an item to add 1 to the plan, Shift+click to add 10. The number in the corner is the Smithing level; green is how many you can craft right now.",
+    nores:"Nothing matches.", nounlocked:"No unlocked recipes on this tab. Tick “Show locked recipes” to see them all.",
+    plan:"Plan", clear:"Clear", plan_empty:"Pick items on the anvil to plan them.",
+    opt_expand:"Craft missing anvil parts too", opt_inv:"Count character inventories", opt_forge:"Count bars and ore in the forge",
+    lv:"Lv", need_lv:a=>`Smithing ${a.lv} needed, best is ${a.best}`, locked_r:"recipe not unlocked yet",
+    sum_crafts:"crafts", sum_xp:"Smithing EXP", sum_lv:"highest level needed", sum_ready:"materials ready", sum_missing:"item types missing",
+    need:"Materials", only_missing:"Only missing", th_item:"Item", th_need:"Needed", th_have:"Have", th_left:"Left over", th_status:"Status",
+    st_ok:"enough", st_miss:n=>`missing ${n}`, st_craft:n=>`craft ${n}`, st_smelt:"smelt below", need_empty:"The plan is empty.",
+    forge:"Forge: ore to smelt", f_extra:"Extra Bars upgrade, %", f_oil:"Oil", f_none:"No oil", f_brim:"Brimstone slot (×1.5)", f_bribe:"Fossil Fuel Legislation bribe",
+    f_mult:"Bars per smelt:", oil_opt:(n,a,u)=>`${n}: +${a}% bars, ${u}% used per smelt`,
+    forge_note:(m)=>`Each smelt eats the ore shown in “per smelt” and makes ×${m} bars: the whole part always, the fractional part as a chance, the same roll the game uses. So the ore is an expected amount; “worst case” assumes every chance roll fails. Oil also burns by chance on every smelt, so its count is an average.`,
+    forge_empty:"No missing bars, nothing to smelt.",
+    th_bar:"Bar", th_bars:"Bars missing", th_per:"Ore per smelt", th_smelts:"Smelts", th_ore:"Ore needed", th_worst:"Worst case", th_orehave:"Ore you have", th_oremiss:"Ore missing", th_oil:"Oil used",
+    res:"My resources", res_ph:"Filter", res_zero:"Show items I don't have", res_empty:"Load a save to see your resources.",
+    from_stor:"storage", from_inv:"inventories", from_forge:"forge",
+    g_craft:"Crafted on the anvil first", g_bBar:"Bars", g_bOre:"Ores", g_log:"Logs and leaves", g_drop:"Monster drops", g_mat:"Materials", g_dFish:"Fish", g_dBugs:"Bugs", g_dCritters:"Critters", g_dSouls:"Souls", g_cOil:"Oils", g_equip:"Gear and other items",
+    tip_recipe:"Recipe (have / need)", tip_have:"You have", tip_tab:"Anvil tab", tip_xp:"EXP per craft",
+    foot:'Recipes, levels, EXP, unlock hints, forge and oil rules and every icon are read from the Steam game files (build __BUILD__). Smelting follows the game code: an Extra Bars upgrade, a double-bar oil and a Brimstone slot multiply the bars per smelt; oil burns with its own chance per smelt (the Fossil Fuel bribe only lowers that by 0.2% in the code, despite its description). The save never leaves your browser; loading by username only downloads the published profile from idleonefficiency.com. Interface idea: <a href="https://idleontoolbox.com/tools/item-planner" target="_blank" rel="noopener">IdleOn Toolbox item planner</a>. Legends of Idleon and its art belong to Lavaflame2; this is an unofficial fan tool. <a href="https://github.com/StimDesu/idleon-craft-planner" target="_blank" rel="noopener">Source on GitHub</a>.'
+  },
+  ru: {
+    title:"IdleOn Craft Planner", subtitle:"крафт на наковальне, материалы и переплавка",
+    nick_btn:"Загрузить по нику", nick_ph:"Ник в IdleOn",
+    nick_hint:'Берётся профиль, опубликованный на <a href="https://www.idleonefficiency.com" target="_blank" rel="noopener">idleonefficiency.com</a>. Чтобы обновить данные, опубликуйте профиль там заново.',
+    or:"или вставьте raw JSON сохранения", placeholder:"Raw JSON игры (IdleOn Efficiency → Raw data или raw JSON из IdleOn Toolbox)",
+    parse:"Загрузить", open:"Открыть файл…", forget:"Забыть сохранение",
+    nick_loading:a=>`Загружаю ${a}…`, ok_nick:a=>`Загружен ${a.name}: персонажей ${a.n}.`, ok_n:n=>`Сохранение загружено: персонажей ${n}.`, ok_saved:n=>`Восстановлено прошлое сохранение: персонажей ${n}.`,
+    e_nick:a=>`Опубликованный профиль «${a.name}» не найден (HTTP ${a.status}).`, e_nickfail:a=>`Не удалось загрузить «${a.name}»: ${a.err}`,
+    e_fail:"Не получилось прочитать сохранение: ", e_nokey:"нет ключей ChestOrder / AnvilCraftStatus. Это точно raw-сохранение игры?",
+    forgot:"Сохранение удалено. Планирование без данных аккаунта.", nosave:"Сохранение не загружено: показаны все рецепты, в наличии ничего нет.",
+    s_chars:"персонажей", s_smith:"лучший уровень кузнечного дела", s_rec:"рецептов открыто", s_items:"стопок предметов учтено",
+    anvil:"Наковальня", search_ph:"Поиск по всем вкладкам", show_all:"Показывать закрытые рецепты", tab:"Вкладка",
+    grid_hint:"Клик по предмету добавляет 1 в план, Shift+клик добавляет 10. Число в углу — уровень кузнечного дела, зелёное — сколько можно скрафтить прямо сейчас.",
+    nores:"Ничего не найдено.", nounlocked:"На этой вкладке нет открытых рецептов. Отметьте «Показывать закрытые рецепты», чтобы увидеть все.",
+    plan:"План", clear:"Очистить", plan_empty:"Выберите предметы на наковальне, чтобы спланировать их.",
+    opt_expand:"Крафтить недостающие детали с наковальни", opt_inv:"Учитывать инвентари персонажей", opt_forge:"Учитывать слитки и руду в кузне",
+    lv:"Ур.", need_lv:a=>`Нужен кузнец ${a.lv} ур., лучший — ${a.best}`, locked_r:"рецепт ещё не открыт",
+    sum_crafts:"крафтов", sum_xp:"опыта кузнеца", sum_lv:"макс. нужный уровень", sum_ready:"материалов хватает", sum_missing:"видов предметов не хватает",
+    need:"Материалы", only_missing:"Только недостающие", th_item:"Предмет", th_need:"Нужно", th_have:"Есть", th_left:"Останется", th_status:"Статус",
+    st_ok:"хватает", st_miss:n=>`не хватает ${n}`, st_craft:n=>`скрафтить ${n}`, st_smelt:"переплавить ниже", need_empty:"План пуст.",
+    forge:"Кузня: сколько руды переплавить", f_extra:"Улучшение Extra Bars, %", f_oil:"Масло", f_none:"Без масла", f_brim:"Слот Brimstone (×1.5)", f_bribe:"Взятка Fossil Fuel Legislation",
+    f_mult:"Слитков за плавку:", oil_opt:(n,a,u)=>`${n}: +${a}% слитков, расход ${u}% за плавку`,
+    forge_note:(m)=>`Каждая плавка съедает руду из колонки «за плавку» и даёт ×${m} слитка: целую часть всегда, дробную — с шансом, тем же броском, что и в игре. Поэтому руда — ожидаемое количество, а «в худшем случае» — если все шансы не сработают. Масло тоже сгорает с шансом на каждой плавке, его количество — среднее.`,
+    forge_empty:"Слитков хватает, переплавлять нечего.",
+    th_bar:"Слиток", th_bars:"Не хватает слитков", th_per:"Руды за плавку", th_smelts:"Плавок", th_ore:"Нужно руды", th_worst:"В худшем случае", th_orehave:"Руды есть", th_oremiss:"Руды не хватает", th_oil:"Масла уйдёт",
+    res:"Мои ресурсы", res_ph:"Фильтр", res_zero:"Показывать то, чего нет", res_empty:"Загрузите сохранение, чтобы увидеть ресурсы.",
+    from_stor:"хранилище", from_inv:"инвентари", from_forge:"кузня",
+    g_craft:"Сначала скрафтить на наковальне", g_bBar:"Слитки", g_bOre:"Руда", g_log:"Брёвна и листья", g_drop:"Добыча с монстров", g_mat:"Материалы", g_dFish:"Рыба", g_dBugs:"Жуки", g_dCritters:"Зверьки", g_dSouls:"Души", g_cOil:"Масла", g_equip:"Снаряжение и прочее",
+    tip_recipe:"Рецепт (есть / нужно)", tip_have:"Есть", tip_tab:"Вкладка наковальни", tip_xp:"Опыт за крафт",
+    foot:'Рецепты, уровни, опыт, подсказки по открытию, правила кузни и масел и все иконки взяты из файлов Steam-версии игры (билд __BUILD__). Переплавка считается по коду игры: улучшение Extra Bars, масло на доп. слитки и слот Brimstone умножают число слитков за плавку; масло сгорает со своим шансом на каждой плавке (взятка Fossil Fuel по коду снижает его всего на 0.2%, хотя в описании обещано больше). Сохранение не покидает браузер; загрузка по нику только скачивает опубликованный профиль с idleonefficiency.com. Идея интерфейса: <a href="https://idleontoolbox.com/tools/item-planner" target="_blank" rel="noopener">планировщик IdleOn Toolbox</a>. Legends of Idleon и её графика принадлежат Lavaflame2; это неофициальный фанатский инструмент. <a href="https://github.com/StimDesu/idleon-craft-planner" target="_blank" rel="noopener">Исходники на GitHub</a>.'
+  }
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const asArr = v => { if (typeof v !== "string") return v; try { return JSON.parse(v); } catch (e) { return v; } };
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
+let lang = store.get("cp-lang") || ((navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"]).some(l => /^ru\b/i.test(l)) ? "ru" : "en");
+let L = T[lang];
+
+// ---------- static data ----------
+const E = D.tabs.map((tab, t) => tab.map((r, k) => Object.assign({ t, k }, r)));   // anvil entries per tab
+const R = {};                       // item id -> first recipe {t, k, id, lv, xp, cost, hint, all}
+E.flat().forEach(r => { if (!R[r.id]) R[r.id] = Object.assign({ all: [] }, r); R[r.id].all.push(r); });
+const BAR2ORE = {}; for (const o in D.ores) BAR2ORE[D.ores[o].bar] = o;
+const GROUPS = ["craft","bBar","bOre","log","drop","mat","dFish","dBugs","dCritters","dSouls","cOil","equip"];
+function group(id){
+  const it = D.items[id] || {}, g = it.g;
+  if (g === "bBar" || g === "bOre" || g === "cOil" || g === "dFish" || g === "dBugs" || g === "dCritters" || g === "dSouls") return g;
+  if (g === "bLog" || g === "bLeaf") return "log";
+  if (g === "bCraft") return it.ty === "MONSTER_DROP" ? "drop" : "mat";
+  return "equip";
+}
+const nm = id => { const it = D.items[id]; return it ? (lang === "ru" && it.ru) || it.en : id; };
+function icon(id, cls){
+  const it = D.items[id]; if (!it || it.i == null) return `<span class="ic ${cls||""}"></span>`;
+  return `<span class="ic ${cls||""}" style="--x:${it.i % D.cols};--y:${Math.floor(it.i / D.cols)}"></span>`;
+}
+const fmt = n => Math.round(n).toLocaleString(lang === "ru" ? "ru-RU" : "en-US");
+const cfmt = n => n < 10000 ? String(Math.floor(n)) : new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US", { notation:"compact", maximumFractionDigits:1 }).format(n);
+
+// ---------- state ----------
+let acct = null;                    // parsed save
+let plan = []; try { plan = JSON.parse(store.get("cp-plan") || "[]").filter(p => R[p.id] && p.q > 0); } catch(e){ plan = []; }
+let tabSel = +(store.get("cp-tab") || 0) || 0;
+let lastMsg = null;
+
+// ---------- save ----------
+function addInv(map, order, qty){
+  if (!Array.isArray(order) || !Array.isArray(qty)) return;
+  order.forEach((id, i) => { const q = Number(qty[i]) || 0; if (id && id !== "Blank" && id !== "LockedInvSpace" && q > 0) map[id] = (map[id] || 0) + q; });
+}
+function parseSave(text){
+  let o = JSON.parse(text.trim()), names = null;
+  if (o && o.data && typeof o.data === "object" && !("ChestOrder" in o)) { names = o.charNames || o.playerNames; o = o.data; }
+  if (!o || !("ChestOrder" in o || "AnvilCraftStatus" in o)) throw new Error("nokey");
+  const A = k => o[k] == null ? null : asArr(o[k]);
+  names = names || A("playerNames");
+  const stor = {}, inv = {}, forge = {};
+  addInv(stor, A("ChestOrder"), A("ChestQuantity"));
+  const chars = [];
+  for (let n = 0; ("Lv0_" + n) in o; n++) {
+    const lv = A("Lv0_" + n) || [];
+    addInv(inv, A("InventoryOrder_" + n), A("ItemQTY_" + n));
+    chars.push({ name: (names && names[n]) || null, smith: Number(lv[2]) || 0 });
+  }
+  const fo = A("ForgeItemOrder") || [], fq = A("ForgeItemQty") || [];
+  addInv(forge, fo, fq);
+  const anvil = (A("AnvilCraftStatus") || []).map(asArr);
+  const flv = A("ForgeLV") || [], gem = A("GemItemsPurchased") || [], bribe = A("BribeStatus") || [];
+  let oil = "";                     // the double-bar oil used most in the forge right now
+  const oc = {}; for (let s = 1; s < fo.length; s += 3) if (D.oils[fo[s]] && D.oils[fo[s]].eff === "DoubleBarsForge") oc[fo[s]] = (oc[fo[s]] || 0) + 1;
+  for (const k in oc) if (!oil || oc[k] > oc[oil]) oil = k;
+  return { chars, stor, inv, forge, anvil, extra: Math.round(Number(flv[4]) || 0), brim: (Number(gem[104]) || 0) > 0, bribe: Number(bribe[9]) === 1, oil };
+}
+const bestSmith = () => acct && acct.chars.length ? Math.max(...acct.chars.map(c => c.smith)) : null;
+function unlocked(r){
+  if (!acct) return true;
+  return R[r.id].all.some(e => { const row = acct.anvil[e.t]; return Array.isArray(row) && Number(row[e.k]) >= 0; });
+}
+function owned(){
+  const o = {};
+  if (!acct) return o;
+  const add = m => { for (const k in m) o[k] = (o[k] || 0) + m[k]; };
+  add(acct.stor);
+  if ($("#useInv").checked) add(acct.inv);
+  if ($("#useForge").checked) add(acct.forge);
+  return o;
+}
+
+// ---------- planning ----------
+function compute(){
+  const own = owned(), expand = $("#expand").checked;
+  const planQ = {}; plan.forEach(p => planQ[p.id] = (planQ[p.id] || 0) + p.q);
+  const crafts = Object.assign({}, planQ);
+  let demand = {};
+  for (let it = 0; it < 40; it++) {
+    demand = {};
+    for (const id in crafts) { const r = R[id]; if (r) for (const [m, q] of r.cost) demand[m] = (demand[m] || 0) + q * crafts[id]; }
+    if (!expand) break;
+    let changed = false;
+    for (const m in demand) if (R[m]) {
+      const want = (planQ[m] || 0) + Math.max(0, demand[m] - (own[m] || 0));
+      if ((crafts[m] || 0) !== want) { crafts[m] = want; changed = true; }
+    }
+    for (const m in crafts) if (!(m in planQ) && !(m in demand)) { delete crafts[m]; changed = true; }
+    if (!changed) break;
+  }
+  const rows = Object.keys(demand).map(id => {
+    const need = demand[id], have = own[id] || 0, made = expand && R[id] ? (crafts[id] || 0) - (planQ[id] || 0) : 0;
+    return { id, need, have, made, miss: Math.max(0, need - have - made) };
+  });
+  return { own, planQ, crafts, rows };
+}
+function forgeMult(){
+  const ex = Math.max(0, Number($("#fExtra").value) || 0), oil = D.oils[$("#fOil").value];
+  return (1 + Math.round(ex) / 100) * (oil ? 1 + oil.amt / 100 : 1) * ($("#fBrim").checked ? 1.5 : 1);
+}
+
+// ---------- rendering ----------
+function applyLang(){
+  L = T[lang];
+  document.documentElement.lang = lang;
+  document.title = L.title;
+  document.querySelectorAll("[data-i]").forEach(el => { const v = L[el.dataset.i]; if (el.dataset.i === "foot" || el.dataset.i === "nick_hint") el.innerHTML = v.replace("__BUILD__", D.build || "?"); else el.textContent = v; });
+  $("#save").placeholder = L.placeholder; $("#nick").placeholder = L.nick_ph; $("#q").placeholder = L.search_ph; $("#rq").placeholder = L.res_ph;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  const cur = $("#fOil").value;
+  $("#fOil").innerHTML = `<option value="">${L.f_none}</option>` + Object.keys(D.oils).filter(k => D.oils[k].eff === "DoubleBarsForge")
+    .map(k => `<option value="${k}">${esc(L.oil_opt(nm(k), D.oils[k].amt, D.oils[k].use))}</option>`).join("");
+  $("#fOil").value = cur;
+  if (lastMsg) showMsg(...lastMsg);
+  renderAll();
+}
+function renderStats(){
+  if (!acct) { $("#stats").innerHTML = `<span class="note">${L.nosave}</span>`; return; }
+  let un = 0; for (const id in R) if (unlocked(R[id])) un++;
+  $("#stats").innerHTML =
+    `<div class="stat"><b>${acct.chars.length}</b><span>${L.s_chars}</span></div>`
+  + `<div class="stat"><b>${bestSmith()}</b><span>${L.s_smith}</span></div>`
+  + `<div class="stat"><b>${un}/${Object.keys(R).length}</b><span>${L.s_rec}</span></div>`;
+}
+function canCraft(r, own){
+  if (!acct) return 0;
+  let n = Infinity; for (const [m, q] of r.cost) n = Math.min(n, Math.floor((own[m] || 0) / q));
+  return n === Infinity ? 0 : n;
+}
+function renderTabs(){
+  $("#tabs").innerHTML = E.map((tab, t) => {
+    const un = acct ? tab.filter(unlocked).length : tab.length;
+    return `<button type="button" role="tab" class="tab${acct && !un ? " locked" : ""}" aria-selected="${t === tabSel}" data-tab="${t}" title="${L.tab} ${t + 1}">`
+      + `${icon("EquipmentSmithingTabs" + (t + 1), "s28")}${t + 1}<small>${acct ? un + "/" : ""}${tab.length}</small></button>`;
+  }).join("");
+}
+function renderGrid(own, planQ){
+  const q = $("#q").value.trim().toLowerCase(), all = !acct || $("#showAll").checked, best = bestSmith();
+  let list = q ? Object.values(R).filter(r => nm(r.id).toLowerCase().includes(q) || (D.items[r.id] || {}).en.toLowerCase().includes(q)) : E[tabSel];
+  list = list.filter(r => all || unlocked(r));
+  if (!list.length) { $("#grid").innerHTML = `<div class="empty">${q ? L.nores : L.nounlocked}</div>`; return; }
+  $("#grid").innerHTML = list.map(r => {
+    const lock = !unlocked(r), can = canCraft(r, own), low = best != null && r.lv > best;
+    return `<button type="button" class="cell${lock ? " locked" : ""}${low ? " lowlv" : ""}${planQ[r.id] ? " inplan" : ""}" data-add="${r.id}" data-item="${r.id}" aria-label="${esc(nm(r.id))}">`
+      + icon(r.id) + `<span class="lv">${r.lv}</span>`
+      + (planQ[r.id] ? `<span class="pq">${cfmt(planQ[r.id])}</span>` : "")
+      + (q ? `<span class="tn">${r.t + 1}</span>` : can > 0 && !lock ? `<span class="can">${cfmt(can)}</span>` : "")
+      + `</button>`;
+  }).join("");
+}
+function renderPlan(res){
+  const best = bestSmith();
+  if (!plan.length) { $("#plan").innerHTML = `<p class="note">${L.plan_empty}</p>`; }
+  else $("#plan").innerHTML = plan.map((p, i) => {
+    const r = R[p.id], warn = [];
+    if (best != null && r.lv > best) warn.push(L.need_lv({ lv: r.lv, best }));
+    if (!unlocked(r)) warn.push(L.locked_r);
+    return `<div class="pl">${icon(p.id)}<div class="nm" data-item="${p.id}">${esc(nm(p.id))}<small>${L.tab} ${r.t + 1} · ${L.lv} ${r.lv}${warn.length ? ` · <span class="warn">${esc(warn.join(", "))}</span>` : ""}</small></div>`
+      + `<span class="qty"><button type="button" data-d="${i}" data-v="-1" aria-label="−1">−</button><input class="num" type="number" min="1" value="${p.q}" data-qi="${i}" aria-label="${esc(nm(p.id))}"><button type="button" data-d="${i}" data-v="1" aria-label="+1">+</button></span>`
+      + `<button type="button" class="x" data-rm="${i}" aria-label="×">×</button></div>`;
+  }).join("");
+  let n = 0, xp = 0, lv = 0;
+  for (const id in res.crafts) { const c = res.crafts[id]; n += c; xp += c * R[id].xp; lv = Math.max(lv, R[id].lv); }
+  const miss = res.rows.filter(r => r.miss > 0).length, ready = res.rows.length - miss;
+  $("#summary").innerHTML = plan.length ? `<span>${L.sum_crafts}: <b>${fmt(n)}</b></span><span>${L.sum_xp}: <b>${fmt(xp)}</b></span><span>${L.sum_lv}: <b>${lv}</b></span>`
+    + `<span>${L.sum_ready}: <b>${ready}/${res.rows.length}</b></span>` : "";
+}
+function renderNeeds(res){
+  const only = $("#onlyMissing").checked;
+  if (!res.rows.length) { $("#needs").innerHTML = `<tbody><tr><td class="l note">${L.need_empty}</td></tr></tbody>`; return; }
+  let h = `<thead><tr><th class="l">${L.th_item}</th><th>${L.th_need}</th><th>${L.th_have}</th><th></th><th>${L.th_left}</th><th class="l">${L.th_status}</th></tr></thead><tbody>`;
+  for (const g of GROUPS) {
+    const rows = res.rows.filter(r => (r.made > 0 ? "craft" : group(r.id)) === g && (!only || r.miss > 0 || r.made > 0)).sort((a, b) => b.miss - a.miss || nm(a.id).localeCompare(nm(b.id)));
+    if (!rows.length) continue;
+    h += `<tr class="grp"><td colspan="6">${L["g_" + g]}</td></tr>`;
+    for (const r of rows) {
+      const pct = Math.min(100, (r.have + r.made) / r.need * 100);
+      const st = r.miss > 0 ? (g === "bBar" && BAR2ORE[r.id] ? `<span class="chip bad">${L.st_miss(fmt(r.miss))}</span> <span class="note">${L.st_smelt}</span>` : `<span class="chip bad">${L.st_miss(fmt(r.miss))}</span>`)
+        : r.made > 0 ? `<span class="chip craft">${L.st_craft(fmt(r.made))}</span>` : `<span class="chip ok">${L.st_ok}</span>`;
+      h += `<tr><td class="l nm" data-item="${r.id}">${icon(r.id, "s28")}${esc(nm(r.id))}</td><td class="num">${fmt(r.need)}</td><td class="num">${fmt(r.have)}</td>`
+        + `<td><div class="bar${pct < 100 ? " part" : ""}"><i style="width:${pct}%"></i></div></td><td class="num">${r.miss > 0 ? "—" : fmt(r.have + r.made - r.need)}</td><td class="l">${st}</td></tr>`;
+    }
+  }
+  $("#needs").innerHTML = h + "</tbody>";
+}
+function renderForge(res){
+  const m = forgeMult(), oil = D.oils[$("#fOil").value], burn = oil ? oil.use / 100 * ($("#fBribe").checked ? 1 - D.oilBribe / 100 : 1) : 0;
+  $("#fMult").textContent = "×" + (+m.toFixed(3));
+  $("#forgeNote").textContent = L.forge_note(+m.toFixed(3));
+  const direct = {}; res.rows.forEach(r => direct[r.id] = r.need);
+  const bars = res.rows.filter(r => BAR2ORE[r.id] && r.miss > 0);
+  if (!bars.length) { $("#forgeTbl").innerHTML = `<tbody><tr><td class="l note">${L.forge_empty}</td></tr></tbody>`; return; }
+  let h = `<thead><tr><th class="l">${L.th_bar}</th><th>${L.th_bars}</th><th>${L.th_per}</th><th>${L.th_smelts}</th><th>${L.th_ore}</th><th>${L.th_worst}</th><th>${L.th_orehave}</th><th>${L.th_oremiss}</th>${oil ? `<th>${L.th_oil}</th>` : ""}</tr></thead><tbody>`;
+  let oilTot = 0;
+  for (const r of bars) {
+    const ore = BAR2ORE[r.id], per = D.ores[ore].per;
+    const smelts = Math.ceil(r.miss / m), worst = Math.ceil(r.miss / Math.max(1, Math.floor(m))) * per, need = smelts * per;
+    const have = Math.max(0, (res.own[ore] || 0) - (direct[ore] || 0));  // ore the recipes already eat directly is reserved
+    const miss = Math.max(0, need - have), oilUse = smelts * burn; oilTot += oilUse;
+    h += `<tr><td class="l nm" data-item="${r.id}">${icon(r.id, "s28")}${esc(nm(r.id))}</td><td class="num">${fmt(r.miss)}</td><td class="num">${fmt(per)}</td><td class="num">${fmt(smelts)}</td>`
+      + `<td class="num" data-item="${ore}"><b>${fmt(need)}</b> ${icon(ore, "s20")}</td><td class="num">${fmt(worst)}</td><td class="num">${fmt(have)}</td>`
+      + `<td class="l">${miss > 0 ? `<span class="chip bad">${fmt(miss)}</span>` : `<span class="chip ok">${L.st_ok}</span>`}</td>${oil ? `<td class="num">≈ ${fmt(Math.ceil(oilUse))}</td>` : ""}</tr>`;
+  }
+  if (oil) h += `<tr><td class="l" colspan="8"></td><td class="num" data-item="${$("#fOil").value}">≈ <b>${fmt(Math.ceil(oilTot))}</b> ${icon($("#fOil").value, "s20")}</td></tr>`;
+  $("#forgeTbl").innerHTML = h + "</tbody>";
+}
+function renderRes(own){
+  if (!acct) { $("#res").innerHTML = `<p class="note">${L.res_empty}</p>`; return; }
+  const q = $("#rq").value.trim().toLowerCase(), zero = $("#resZero").checked;
+  const ids = Object.keys(D.items).filter(id => D.items[id].g && (own[id] || (zero && group(id) !== "equip")));
+  let h = "";
+  for (const g of GROUPS.slice(1)) {
+    const list = ids.filter(id => group(id) === g && (!q || nm(id).toLowerCase().includes(q))).sort((a, b) => (own[b] || 0) - (own[a] || 0) || nm(a).localeCompare(nm(b)));
+    if (!list.length) continue;
+    h += `<div><h3>${L["g_" + g]}</h3><div class="chips">` + list.map(id => `<div class="ri${own[id] ? "" : " zero"}" data-item="${id}">${icon(id, "s28")}<span class="n">${esc(nm(id))}</span><b>${cfmt(own[id] || 0)}</b></div>`).join("") + `</div></div>`;
+  }
+  $("#res").innerHTML = h || `<p class="note">${L.nores}</p>`;
+}
+function renderAll(){
+  const res = compute();
+  renderStats(); renderTabs(); renderGrid(res.own, res.planQ); renderPlan(res); renderNeeds(res); renderForge(res); renderRes(res.own);
+}
+
+// ---------- tooltip ----------
+const tip = $("#tip");
+function tipHTML(id){
+  const own = owned(), it = D.items[id] || {}, r = R[id];
+  let h = `<div class="hd">${icon(id, "s48")}<div><b>${esc(nm(id))}</b>`;
+  if (lang === "ru" && it.ru && it.en !== it.ru) h += `<div class="t">${esc(it.en)}</div>`;
+  h += `</div></div>`;
+  if (acct) {
+    const parts = [[L.from_stor, acct.stor[id]], [L.from_inv, $("#useInv").checked && acct.inv[id]], [L.from_forge, $("#useForge").checked && acct.forge[id]]].filter(x => x[1]);
+    h += `<div>${L.tip_have}: <b>${fmt(own[id] || 0)}</b>${parts.length > 1 ? ` <span class="t">(${parts.map(x => x[0] + " " + fmt(x[1])).join(", ")})</span>` : ""}</div>`;
+  }
+  if (r) {
+    const best = bestSmith();
+    h += `<div class="t">${L.tip_tab} ${r.t + 1} · ${L.lv} ${r.lv}${best != null ? ` (${best})` : ""} · ${L.tip_xp} ${fmt(r.xp)}</div><div class="t">${L.tip_recipe}</div><div class="rc">`
+      + r.cost.map(([m, q]) => { const o = own[m] || 0; return `<div>${icon(m, "s20")}<span>${esc(nm(m))}</span><em class="${acct ? (o >= q ? "ok" : "bad") : ""}">${acct ? cfmt(o) + " / " : ""}${cfmt(q)}</em></div>`; }).join("") + `</div>`;
+    if (!unlocked(r)) h += `<div class="lock">🔒 ${L.locked_r}${r.hint ? ": " + esc(lang === "ru" && D.hintRu[r.hint] ? D.hintRu[r.hint] : r.hint.replace(/_/g, " ")) : ""}</div>`;
+  }
+  return h;
+}
+function placeTip(x, y){
+  const rc = tip.getBoundingClientRect();
+  tip.style.left = Math.max(8, Math.min(x + 14, innerWidth - rc.width - 8)) + "px";
+  const below = y + 16, above = y - rc.height - 10;
+  tip.style.top = Math.max(8, Math.min(below + rc.height <= innerHeight - 8 ? below : above, innerHeight - rc.height - 8)) + "px";
+}
+let tipFor = null;
+document.addEventListener("mouseover", e => {
+  const el = e.target.closest("[data-item]");
+  if (!el) { tip.hidden = true; tipFor = null; return; }
+  if (tipFor !== el) { tipFor = el; tip.innerHTML = tipHTML(el.dataset.item); tip.hidden = false; }
+  placeTip(e.clientX, e.clientY);
+});
+document.addEventListener("mousemove", e => { if (!tip.hidden) placeTip(e.clientX, e.clientY); });
+addEventListener("scroll", () => { tip.hidden = true; tipFor = null; }, true);
+
+// ---------- events ----------
+function savePlan(){ store.set("cp-plan", JSON.stringify(plan)); }
+function addToPlan(id, n){
+  const p = plan.find(x => x.id === id);
+  if (p) p.q += n; else plan.push({ id, q: n });
+  savePlan(); renderAll();
+}
+$("#grid").addEventListener("click", e => { const b = e.target.closest("[data-add]"); if (b) addToPlan(b.dataset.add, e.shiftKey ? 10 : 1); });
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (!b) return; tabSel = +b.dataset.tab; store.set("cp-tab", tabSel); $("#q").value = ""; renderAll(); });
+$("#plan").addEventListener("click", e => {
+  const d = e.target.closest("[data-d]"), rm = e.target.closest("[data-rm]");
+  if (d) { const p = plan[+d.dataset.d]; p.q = Math.max(1, p.q + (+d.dataset.v) * (e.shiftKey ? 10 : 1)); }
+  else if (rm) plan.splice(+rm.dataset.rm, 1);
+  else return;
+  savePlan(); renderAll();
+});
+$("#plan").addEventListener("change", e => { const i = e.target.dataset.qi; if (i == null) return; plan[+i].q = Math.max(1, Math.floor(+e.target.value) || 1); savePlan(); renderAll(); });
+$("#clear").addEventListener("click", () => { plan = []; savePlan(); renderAll(); });
+$("#q").addEventListener("input", () => { const r = compute(); renderGrid(r.own, r.planQ); });
+$("#rq").addEventListener("input", () => renderRes(owned()));
+for (const id of ["showAll","expand","useInv","useForge","onlyMissing","resZero","fBrim","fBribe"]) {
+  const el = $("#" + id), v = store.get("cp-" + id); if (v != null && !/^f/.test(id)) el.checked = v === "1";
+  el.addEventListener("change", () => { if (!/^f/.test(id)) store.set("cp-" + id, el.checked ? "1" : "0"); renderAll(); });
+}
+$("#fExtra").addEventListener("input", renderAll);
+$("#fOil").addEventListener("change", renderAll);
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { lang = b.dataset.lang; store.set("cp-lang", lang); applyLang(); }));
+
+function showMsg(kind, key, arg){
+  lastMsg = [kind, key, arg];
+  const v = L[key];
+  $("#msg").className = kind === "err" || kind === "errf" ? "msg err" : "msg";
+  $("#msg").textContent = kind === "err" ? L.e_fail + (L[arg] || arg) : (typeof v === "function" ? v(arg) : v);
+}
+function setAccount(a){
+  acct = a;
+  if (a) { $("#fExtra").value = a.extra; $("#fOil").value = a.oil; $("#fBrim").checked = a.brim; $("#fBribe").checked = a.bribe; }
+  renderAll();
+}
+function load(text, key, arg){
+  try { const a = parseSave(text); setAccount(a); showMsg("ok", key || "ok_n", arg ? Object.assign({ n: a.chars.length }, arg) : a.chars.length); return true; }
+  catch (e) { showMsg("err", null, e.message === "nokey" ? "e_nokey" : e.message); return false; }
+}
+const isNick = s => /^[A-Za-z0-9_\-]{2,30}$/.test(s.trim());
+async function loadNick(name){
+  name = name.trim();
+  if (!isNick(name)) return;
+  $("#nick").value = name;
+  const btn = $("#nickBtn"); btn.disabled = true;
+  showMsg("ok", "nick_loading", name);
+  try {
+    const r = await fetch(`https://cdn.idleonefficiency.com/profiles/${encodeURIComponent(name.toLowerCase())}.json`, { cache: "no-cache" });
+    if (!r.ok) { showMsg("errf", "e_nick", { name, status: r.status }); return; }
+    if (load(await r.text(), "ok_nick", { name })) {
+      store.set("cp-nick", name); store.set("cp-src", "nick"); store.del("cp-save");
+      try { history.replaceState(null, "", "#" + encodeURIComponent(name)); } catch(e){}
+    }
+  } catch (e) { showMsg("errf", "e_nickfail", { name, err: e.message }); }
+  finally { btn.disabled = false; }
+}
+$("#nickForm").addEventListener("submit", e => { e.preventDefault(); loadNick($("#nick").value); });
+$("#go").addEventListener("click", () => {
+  const t = $("#save").value;
+  if (isNick(t)) { loadNick(t); return; }
+  if (load(t)) { store.set("cp-save", t); store.set("cp-src", "raw"); $("#save").value = ""; try { history.replaceState(null, "", location.pathname); } catch(e){} }
+});
+$("#save").addEventListener("paste", () => setTimeout(() => $("#go").click(), 0));
+$("#file").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { $("#save").value = t; $("#go").click(); }); e.target.value = ""; });
+$("#forget").addEventListener("click", () => {
+  for (const k of ["cp-save","cp-src","cp-nick"]) store.del(k);
+  $("#nick").value = ""; try { history.replaceState(null, "", location.pathname); } catch(e){}
+  setAccount(null); showMsg("ok", "forgot");
+});
+
+applyLang();
+const hashNick = decodeURIComponent(location.hash.slice(1)), savedNick = store.get("cp-nick");
+if (isNick(hashNick)) loadNick(hashNick);
+else if (store.get("cp-src") === "nick" && savedNick) loadNick(savedNick);
+else { const s = store.get("cp-save"); if (s) load(s, "ok_saved"); }
+</script>
+</body>
+</html>
